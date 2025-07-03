@@ -1,0 +1,21 @@
+source: GREEN
+
+output_filename: output
+output_sheetname: sheet1
+
+column_map:
+  - key: status
+    column: A
+    tag: system
+
+  - key: company
+    column: B
+    tag: list
+
+  - key: website
+    column: C
+    tag: research
+
+  - key: inquiry
+    column: D
+    tag: research
