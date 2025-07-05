@@ -25,7 +25,7 @@ headless = False
     column_map = origin_column_map["list"] | origin_column_map["system"]
 
     try:
-        for result_map in playwright_flow(origin_column_map["list"], list_source_module):
+        for result_map, searchword in playwright_flow(origin_column_map["list"], list_source_module):
             if not result_map:
                 logger.info("No contents found. Finishing flow.")
                 return True
@@ -35,6 +35,7 @@ headless = False
             try:
                 from app.spreadsheet.spreadsheet import write_by_column
                 result_map["status"] = "list_completed"
+                result_map["searchword"] = searchword
                 status = write_by_column(
                     spreadsheet["original_path"],
                     spreadsheet["workbook"],
@@ -66,7 +67,7 @@ def playwright_flow(key_column_map, list_source_module):
             raise RuntimeError(f"Failed to open url: {e}")
 
         try:
-            input("検索条件を入力してください..:")
+            searchword = input("検索条件を入力してください..: ")
         except Exception as e:
             raise RuntimeError(f"Failed to input search: {e}")
 
@@ -77,7 +78,7 @@ def playwright_flow(key_column_map, list_source_module):
                 raise RuntimeError("Failed to get content")
             
             if not contents:
-                yield None
+                yield None, None
 
             for i, c in enumerate(contents, start=1):
                 result = {}
@@ -88,12 +89,12 @@ def playwright_flow(key_column_map, list_source_module):
                     except Exception as e:
                         raise RuntimeError(f"Failed to run {key} function: {e}")
                 
-                yield result  # 個々の抽出結果をその都度返す
+                yield result, searchword  # 個々の抽出結果をその都度返す
 
             try:
                 status = getattr(list_source_module, "click_next_button")(page)
                 if not status:
-                    yield None
+                    yield None, None
                 logger.info("Success to run next action")
             except Exception as e:
                 raise RuntimeError(f"Failed to run next action: {e}")
