@@ -3,6 +3,7 @@ import shutil
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
+from openpyxl.worksheet.worksheet import Worksheet
 
 def detect_row(path, sheetname):
     workbook = openpyxl.load_workbook(path)
@@ -43,13 +44,12 @@ def acquisition_workbook(path, sheetname):
     worksheet = workbook[sheetname]
     return workbook, worksheet
 
-def search_into_column(sheet, columns, search_words):
-    matched_rows = set()  # 重複排除のため set を使用
+def search_into_column(sheet: Worksheet, column: str, search_word: str) -> list:
+    matched_rows = []
 
-    for col in columns:
-        for cell in sheet[col]:
-            if cell.value and any(word in str(cell.value) for word in search_words):
-                matched_rows.add(cell.row)
+    for cell in sheet[column]:
+        if cell.value and str(cell.value).strip() == search_word:
+            matched_rows.append(cell.row)
 
     return sorted(matched_rows)
 
@@ -60,7 +60,6 @@ def write_by_column(original_path, workbook, sheet, row, column_map, value_map):
             cell = sheet[f"{col_letter}{row}"]
             if value not in [None, ""]:
                 cell.value = value  # 上書き
-
     try:
         status = save_workbook(workbook, original_path)
         if not status:
