@@ -5,7 +5,6 @@ from app.utillities.utillities import load_module_source, load_module_research
 from app.logger.logger import logger
 
 indivisual_source_module = load_module_source("GREEN", "indivisual")
-research_module = load_module_research()
 
 def run_flow(origin_column_map, spreadsheet, indivisual_source_module):
     message = f"""
@@ -42,17 +41,22 @@ headless = True
         raise RuntimeError(f"Failed to search unprocessed rows: {e}")
     
     for unprocess_row in unprocess_rows:
+        logger.info(f"Processing row: {unprocess_row + 1}")
+
         if "indivisual" in origin_column_map:
             try:
-                recruitmenturl = spreadsheet["worksheet"][column_map["recruitmenturl"]][unprocess_row - 1].value # libraryの仕様により[0]はじまりのため
-                if not recruitmenturl:
-                    logger.warning(f"No url found in row {unprocess_row}")
+                indivisual_url = spreadsheet["worksheet"][column_map["recruitmenturl"]][unprocess_row].value
+                if not indivisual_url:
+                    logger.warning(f"No url found in row {unprocess_row + 1}")
                     continue
             except Exception as e:
                 raise RuntimeError(f"Failed to get url: {e}")
-            
             try:
-                scrape_result_map = playwright_flow(recruitmenturl, origin_column_map["indivisual"], indivisual_source_module)
+                indivisual_url = fix_url(indivisual_url)
+            except Exception as e:
+                raise RuntimeError(f"Failed to fix url: {e}")
+            try:
+                scrape_result_map = playwright_flow(indivisual_url, origin_column_map["indivisual"], indivisual_source_module)
                 if not scrape_result_map:
                     raise RuntimeError("Failed to get result")
                 logger.info(f'scraping result:\n{json.dumps(scrape_result_map, indent=4, ensure_ascii=False)}')
@@ -60,31 +64,21 @@ headless = True
                 raise RuntimeError(f"Failed to get result: {e}")
         else:
             scrape_result_map = None
-        
+
         if "research" in origin_column_map:
+            from app.research.research import define_case, find_variables, research_flow
             try:
-                from app.research.research import find_company
-                phase = find_company(origin_column_map)
-                if not phase:
-                    raise RuntimeError("Failed to find company in column_map. Please add company to column_map to get research result.")
-                if phase == "list":
-                    company = spreadsheet["worksheet"][column_map["company"]][unprocess_row - 1].value # libraryの仕様により[0]はじまりのため
-                elif phase == "indivisual":
-                    company = scrape_result_map["company"]
-                else:
-                    raise RuntimeError(f"Failed to find company in column_map. An error occurred in finding company value.")
+                case = define_case(origin_column_map["research"])
             except Exception as e:
-                raise RuntimeError(f"Failed to find company: {e}")
-        
+                raise RuntimeError(f"Failed to define case: {e}")
             try:
-                research_result_map = research_flow(company, origin_column_map["research"], research_module)
-                if not research_result_map:
-                    raise RuntimeError("Failed to get result")
-                logger.info(f'research result:\n{json.dumps(research_result_map, indent=4, ensure_ascii=False)}')
+                company, website = find_variables(case, origin_column_map, scrape_result_map, spreadsheet, column_map, unprocess_row)
             except Exception as e:
-                raise RuntimeError(f"Failed to get result: {e}")
-        else:
-            research_result_map = None
+                raise RuntimeError(f"Failed to find variables: {e}")
+            try:
+                research_result_map = research_flow(company, website)
+            except Exception as e:
+                raise RuntimeError(f"Failed to run research: {e}")
         
         result_map = {}
         if scrape_result_map:
@@ -98,7 +92,7 @@ headless = True
                 spreadsheet["original_path"],
                 spreadsheet["workbook"],
                 spreadsheet["worksheet"],
-                unprocess_row,
+                unprocess_row + 1, # 読み取りが0始まりのため
                 column_map,
                 result_map
             )
@@ -132,23 +126,14 @@ def playwright_flow(url, key_column_map, indivisual_source_module):
         page.close()
     return result
 
-def research_flow(company, key_column_map, research_module):
-    for key in ["website", "inquiry"]:
-        if not key in key_column_map:
-            raise RuntimeError(f"{key} is not in column_map. please add to config.")
-    for key in key_column_map.keys():
-        if key not in ["website", "inquiry"]:
-            raise RuntimeError(f"{key} is not supported in research_flow.")
-    
-    result = {}
-    try:
-        website, inquiry = research_module.research(company)
-        result["website"] = website
-        result["inquiry"] = inquiry
-    except Exception as e:
-        raise RuntimeError(f"Failed to run research: {e}")
-
-    return result
+def fix_url(url):
+    import re
+    pattern = r"https://www\.green-japan\.com/company/(\d+)"
+    match = re.search(pattern, url)
+    if match:
+        return f"https://www.green-japan.com/company/{match.group(1)}"
+    else:
+        return url
 
 if __name__ == "__main__":
     # key_column_map = {
@@ -159,7 +144,9 @@ if __name__ == "__main__":
     # print(responce)
 
     key_column_map = {
-        "company": "A",
+        "capitalstock": "A",
+        "averageage": "B",
+        "address": "C",
     }
     responce = playwright_flow("https://www.green-japan.com/company/4335", key_column_map, indivisual_source_module)
     print(responce)
