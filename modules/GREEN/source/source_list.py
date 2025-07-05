@@ -4,7 +4,7 @@ from app.utillities.utillities import extract_number
 def recruitmenturl(content):
     try:
         url = content.find('a')['href']
-        return f'https://www.green-japan.com/{url}' if url else None
+        return f'https://www.green-japan.com{url}' if url else None
     except (IndexError, AttributeError):
         return None
 
