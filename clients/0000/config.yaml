@@ -12,10 +12,22 @@ column_map:
     column: B
     tag: list
 
-  - key: website
+  - key: people
     column: C
+    tag: list
+
+  - key: capitalstock
+    column: D
+    tag: indivisual
+
+  - key: recruitmenturl
+    column: E
+    tag: list
+
+  - key: website
+    column: F
     tag: research
 
   - key: inquiry
-    column: D
+    column: G
     tag: research
