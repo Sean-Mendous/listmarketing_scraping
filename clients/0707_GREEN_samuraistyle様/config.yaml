@@ -4,25 +4,25 @@ output_filename: output
 output_sheetname: sheet1
 
 column_map:
-  - key: status
-    column: A
-    tag: system
-
   - key: company
-    column: B
+    column: A
     tag: list
 
   - key: people
-    column: C
+    column: B
     tag: list
 
   - key: capitalstock
+    column: C
+    tag: indivisual
+
+  - key: averageage
     column: D
     tag: indivisual
 
-  - key: recruitmenturl
+  - key: address
     column: E
-    tag: list
+    tag: indivisual
 
   - key: website
     column: F
@@ -31,3 +31,15 @@ column_map:
   - key: inquiry
     column: G
     tag: research
+
+  - key: recruitmenturl
+    column: H
+    tag: list
+
+  - key: searchword
+    column: I
+    tag: system
+
+  - key: status
+    column: J
+    tag: system
