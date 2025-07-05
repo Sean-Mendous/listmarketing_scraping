@@ -1,15 +1,73 @@
 from bs4 import BeautifulSoup
 
-def company(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    main_section = soup.find('div', class_='css-ikzlcq')
-    div_contents = main_section.find_all('div')
-    for div in div_contents:
-        text_div = div.find('div')
-        lable_text = text_div.find('div').text
-        if lable_text == '会社名':
-            company = text_div.find('p').text
-            return company
+def capitalstock(html):
+    try:
+        items = content(html)
+    except Exception as e:
+        raise RuntimeError(f"Failed to get content: {e}")
+    
+    try:
+        for item in items:
+            label = item.find('div', class_='MuiTypography-subtitle2')
+            if label and label.get_text(strip=True) == '資本金':
+                value = item.find('p', class_='MuiTypography-body2')
+                return value.get_text(strip=True) if value else None
+    except Exception as e:
+        raise RuntimeError(f"Failed to get capitalstock: {e}")
+
+    return None
+
+def averageage(html):
+    try:
+        items = content(html)
+    except Exception as e:
+        raise RuntimeError(f"Failed to get content: {e}")
+    
+    try:
+        for item in items:
+            label = item.find('div', class_='MuiTypography-subtitle2')
+            if label and label.get_text(strip=True) == '平均年齢':
+                value = item.find('p', class_='MuiTypography-body2')
+                return value.get_text(strip=True) if value else None
+    except Exception as e:
+        raise RuntimeError(f"Failed to get capitalstock: {e}")
+
+    return None
 
 def address(html):
-    pass
+    try:
+        items = content(html)
+    except Exception as e:
+        raise RuntimeError(f"Failed to get content: {e}")
+    
+    try:
+        for item in items:
+            label = item.find('div', class_='MuiTypography-subtitle2')
+            if label and label.get_text(strip=True) == '本社住所':
+                value = item.find('p', class_='MuiTypography-body2')
+                return value.get_text(strip=True) if value else None
+    except Exception as e:
+        raise RuntimeError(f"Failed to get capitalstock: {e}")
+
+    return None
+
+def content(html): # content
+    soup = BeautifulSoup(html, 'html.parser')
+
+    company_info_header = soup.find('h2', string='企業情報')
+    if not company_info_header:
+        raise RuntimeError("company_info_header not found")
+    
+    container = company_info_header.find_parent('div')
+    if not container:
+        raise RuntimeError("container not found")
+    
+    info_section = container.find('div', class_='css-ikzlcq')
+    if not info_section:
+        raise RuntimeError("info_section not found")
+    
+    items = info_section.find_all('div', class_='css-1yjo05o')
+    if not items:
+        raise RuntimeError("items not found")
+    
+    return items
