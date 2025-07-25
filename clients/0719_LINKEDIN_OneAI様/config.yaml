@@ -1,0 +1,41 @@
+source: LINKEDIN
+
+output_filename: v1
+output_sheetname: v1
+
+column_map:
+  - key: name
+    column: A
+    tag: list
+
+  - key: role
+    column: B
+    tag: list
+
+  - key: location
+    column: C
+    tag: list
+
+  - key: profile
+    column: D
+    tag: indivisual
+
+  - key: biography
+    column: E
+    tag: indivisual
+
+  - key: recentactivity
+    column: F
+    tag: indivisual
+
+  - key: recruitmenturl
+    column: G
+    tag: list
+
+  - key: searchword
+    column: H
+    tag: system
+
+  - key: status
+    column: I
+    tag: system

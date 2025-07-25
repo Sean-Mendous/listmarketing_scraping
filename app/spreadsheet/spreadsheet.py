@@ -58,8 +58,10 @@ def write_by_column(original_path, workbook, sheet, row, column_map, value_map):
         if key in column_map:
             col_letter = column_map[key]
             cell = sheet[f"{col_letter}{row}"]
-            if value not in [None, ""]:
-                cell.value = value  # 上書き
+            if value is None:
+                cell.value = "None"  # None の場合は文字列 "None" に置き換えて書き込む
+            elif value not in [""]:
+                cell.value = value  # 空白はスキップ
     try:
         status = save_workbook(workbook, original_path)
         if not status:

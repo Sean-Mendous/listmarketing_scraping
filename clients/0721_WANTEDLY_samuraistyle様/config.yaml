@@ -1,0 +1,33 @@
+source: WANTEDLY
+
+output_filename: v2
+output_sheetname: v2
+
+column_map:
+  - key: recruittitle
+    column: A
+    tag: list
+
+  - key: tags
+    column: B
+    tag: list
+
+  - key: details
+    column: C
+    tag: list
+
+  - key: recruitmenturl
+    column: D
+    tag: list
+
+  - key: companyurl
+    column: E
+    tag: list
+
+  - key: searchword
+    column: F
+    tag: system
+
+  - key: status
+    column: G
+    tag: system

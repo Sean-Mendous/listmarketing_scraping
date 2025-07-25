@@ -15,9 +15,7 @@ we are going to run flow.
 here are some information, have a good day!:
 
 web_type = Single Page Application
-headless = False
-    - search_type: manual
-    - search_amount: one time only
+search = needed (headless = False)
 --------------------------\n
 """
     logger.info(message)

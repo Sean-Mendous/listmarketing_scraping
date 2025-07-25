@@ -26,6 +26,10 @@ def extract_number(s: str) -> int:
     numeric_str = re.sub(r"[^\d]", "", s)
     return int(numeric_str) if numeric_str else 0  # 数字がなければ0を返す
 
+def format_text(text: str) -> str:
+    format_text = text.replace('\n', '').replace('\r', '').replace('\t', '').replace('\f', '').replace('\v', '')
+    return format_text.strip()
+
 if __name__ == "__main__":
     module = load_module_source("GREEN", "list")
     print(check_source_items(module))

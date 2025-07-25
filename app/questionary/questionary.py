@@ -11,9 +11,10 @@ def ask_client_folder():
         logger.error("No folder found")
         raise RuntimeError("No folder found")
     else:
+        sorted_folders = sorted(folders, reverse=True)
         selected_client = questionary.select(
             "Select a folder:",
-            choices=folders
+            choices=sorted_folders
         ).ask()
 
     logger.info(f"Selected folder: {selected_client}")

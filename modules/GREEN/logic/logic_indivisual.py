@@ -13,8 +13,11 @@ WELCOME TO SOURCE: GREEN - indivisual
 we are going to run flow.
 here are some information, have a good day!:
 
+scraping / o
+research / o
+
 web_type = Single Page Application
-headless = True
+login = non-needed (headless = True)
 --------------------------\n
 """
     logger.info(message)
